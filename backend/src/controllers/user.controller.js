@@ -25,7 +25,6 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body;
 
-    // Check if any fields are empty
     if ([username, email, password].some((field) => field?.trim() === "")) {
         throw new ApiError(400, "All fields are required");
     }
@@ -66,7 +65,6 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Either username or email is required to login");
     }
 
-    // Find the user by username or email
     const existingUser = await User.findOne({
         $or: [{ username }, { email }]
     });
@@ -82,7 +80,6 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Invalid user credentials");
     }
 
-    // Generate new authentication tokens
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(existingUser._id);
 
     // Remove sensitive fields from response
@@ -106,4 +103,37 @@ const loginUser = asyncHandler(async (req, res) => {
         );
 });
 
-export { registerUser, loginUser };
+const logoutUser = asyncHandler(async (req, res) => {
+    // Remove the stored refresh token
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset: {
+                refreshToken: 1
+            }
+        },
+        {
+            returnDocument: 'after'
+        }
+    );
+
+    const cookieOptions = {
+        httpOnly: true,
+        secure: true
+    };
+
+    // Clear authentication cookies
+    return res
+        .status(200)
+        .clearCookie("accessToken", cookieOptions)
+        .clearCookie("refreshToken", cookieOptions)
+        .json(
+            new ApiResponse(
+                200,
+                {},
+                "User logged out successfully"
+            )
+        );
+});
+
+export { registerUser, loginUser, logoutUser };
