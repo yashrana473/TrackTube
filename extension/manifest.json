@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "TrackTube Ecosystem",
+  "version": "1.0",
+  "description": "Track YouTube playlists .",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "https://www.youtube.com/*"
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Open TrackTube"
+  },
+  "icons": {
+    "128": "icon.png"
+  }
+}
