@@ -26,7 +26,10 @@ const importPlaylist = asyncHandler(async (req, res) => {
     });
 
     if (existingTracker) {
-        throw new ApiError(409, "You are already tracking this playlist");
+        return res.status(409).json({ 
+            success: false, 
+            message: "You are already tracking this playlist" 
+        });
     }
 
     // Fetch playlist details from YT
@@ -45,9 +48,42 @@ const importPlaylist = asyncHandler(async (req, res) => {
         new ApiResponse(
             201,
             newPlaylistTracker,
-            "Playlist successfully imported and tracking started!"
+            "Playlist successfully imported and tracking started."
         )
     );
 });
 
-export { importPlaylist };
+const checkPlaylistStatus = asyncHandler(async (req, res) => {
+    const { url } = req.query;
+
+    if (!url) {
+        return res.status(400).json({ success: false, message: "URL is required" });
+    }
+
+    const urlMatch = url.match(/[?&]list=([^#&?]+)/);
+    const youtubePlaylistId = urlMatch ? urlMatch[1] : null;
+
+    if (!youtubePlaylistId) {
+        return res.status(400).json({ success: false, message: "Invalid YouTube URL" });
+    }
+
+    // Look for any existing record matching the user and playlist ID
+    const playlist = await Playlist.findOne({
+        playlistOwnerId: req.user._id,
+        youtubePlaylistId: youtubePlaylistId
+    });
+
+    if (!playlist) {
+        return res.status(200).json({ success: true, data: null });
+    }
+
+    return res.status(200).json({
+        success: true,
+        data: {
+            name: playlist.playlistName, 
+            totalVideos: playlist.totalPlaylistVideos 
+        }
+    });
+});
+
+export { importPlaylist,checkPlaylistStatus };

@@ -1,44 +1,61 @@
-/* 1. Basic Reset */
-* {
+*{
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* 2. Body Setup */
 body {
-  width: 250px;
+  width: 260px;
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
   color: #333;
   padding: 15px;
 }
 
-/* 3. Main Container (Using Flexbox to stack items) */
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 12px; /* Adds space between all elements */
+  gap: 12px;
 }
 
-/* 4. Typography */
 h3 {
-  color: #d93025; /* YouTube Red */
+  color: #d93025;
 }
 
-#status-message, #playlist-title {
+#status-message {
   font-size: 14px;
   color: #666;
 }
 
-/* 5. Utility Class */
-.hidden {
-  display: none;
+#stats-container {
+  width: 100%;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
 }
 
-/* 6. Button Styling */
+#playlist-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#video-count {
+  font-size: 13px;
+  color: #555;
+}
+
+.hidden {
+  display: none !important;
+}
+
 button {
   width: 100%;
   background-color: #d93025;
@@ -48,6 +65,7 @@ button {
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
+  font-size: 14px;
 }
 
 button:hover {

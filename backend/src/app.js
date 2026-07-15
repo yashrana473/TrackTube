@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 const app = express();
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: true,
     credentials: true
 }));
 
@@ -13,6 +13,9 @@ app.use(cors({
 app.use(express.json({ limit: "20kb" }));
 app.use(express.urlencoded({ extended: true, limit: "20kb" }));
 app.use(cookieParser());
+app.get("/", (req, res) => {
+    res.send("<h1>Server is Live!</h1><p>Right-click, hit Inspect, and run your script in the Console now.</p>");
+});
 
 import userRouter from "./routes/user.routes.js";
 import playlistRouter from "./routes/playlist.routes.js";
