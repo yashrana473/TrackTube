@@ -101,4 +101,25 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
     );
 });
 
-export { importPlaylist,checkPlaylistStatus,getUserPlaylists};
+const getPlaylistById = asyncHandler(async (req, res) => {
+    const { playlistId } = req.params;
+
+    const playlist = await Playlist.findOne({
+        _id: playlistId,
+        playlistOwnerId: req.user._id 
+    });
+
+    if (!playlist) {
+        throw new ApiError(404, "Playlist not found or you don't have permission to view it");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            playlist,
+            "Playlist details fetched successfully"
+        )
+    );
+});
+
+export { importPlaylist,checkPlaylistStatus,getUserPlaylists,getPlaylistById};

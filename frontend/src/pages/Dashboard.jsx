@@ -1,28 +1,36 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link ,useNavigate} from 'react-router-dom';
 
 export default function Dashboard() {
     const [playlists, setPlaylists] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPlaylists = async () => {
             try {
                 const response = await axios.get('http://localhost:8000/api/v1/playlists', {
-                    withCredentials: true // CRITICAL: Sends the JWT cookie to prove who we are!
+                    withCredentials: true 
                 });
                 
                 setPlaylists(response.data.data);
             } catch (err) {
-                setError('Failed to load playlists. Please try logging in again.');
+                // If the backend throws a 401 (Unauthorized)
+                if (err.response && err.response.status === 401) {
+                    navigate('/', { replace: true });
+                } else {
+                    // Otherwise might just be a database error
+                    setError('Failed to load playlists. Please try again later.');
+                }
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchPlaylists();
-    }, []);
+    }, [navigate]);
 
     if (isLoading) {
         return (
@@ -57,7 +65,12 @@ export default function Dashboard() {
                                 {playlist.totalPlaylistVideos} Videos
                             </p>
                             <button className="w-full py-2 bg-red-50 text-red-700 font-bold rounded hover:bg-red-100 transition-colors cursor-pointer">
-                                View Progress
+                                <Link 
+                                   to={`/dashboard/playlist/${playlist._id}`}
+                                   className="block text-center w-full py-2 bg-red-50 text-red-700 font-bold rounded hover:bg-red-100 transition-colors cursor-pointer"
+                                >
+                                   View Progress
+                                </Link>
                             </button>
                         </div>
                     ))}

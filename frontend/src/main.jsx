@@ -2,22 +2,24 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements} from 'react-router-dom'
 import './index.css'
+import PlaylistDetail from './pages/PlaylistDetail.jsx'
 
-// Import components
 import Layout from './Layout.jsx'
 import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
+import NotFound from './pages/NotFound.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      {/* Public Route - No Navbar */}
       <Route path="/" element={<Login />} />
       
-      {/* Protected Routes - Wrapped in the Layout Navbar */}
       <Route path="/dashboard" element={<Layout />}>
         <Route path="" element={<Dashboard />} />
+        <Route path="playlist/:id" element={<PlaylistDetail />} />
       </Route>
+
+      <Route path="*" element={<NotFound />} />
     </>
   )
 )
