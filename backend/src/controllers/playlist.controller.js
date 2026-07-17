@@ -86,4 +86,19 @@ const checkPlaylistStatus = asyncHandler(async (req, res) => {
     });
 });
 
-export { importPlaylist,checkPlaylistStatus };
+const getUserPlaylists = asyncHandler(async (req, res) => {
+    // Find all playlists where the owner matches the logged-in user
+    const playlists = await Playlist.find({
+        playlistOwnerId: req.user._id
+    }).sort({ createdAt: -1 }); // Sort by newest first
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            playlists,
+            "Playlists fetched successfully"
+        )
+    );
+});
+
+export { importPlaylist,checkPlaylistStatus,getUserPlaylists};
