@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "TrackTube Ecosystem",
+  "name": "CourseSync Ecosystem",
   "version": "1.0",
   "description": "Track YouTube playlists .",
   "permissions": [
@@ -16,7 +16,7 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Open TrackTube"
+    "default_title": "Open CourseSync"
   },
   "icons": {
     "128": "icon.png"

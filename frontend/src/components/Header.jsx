@@ -11,7 +11,7 @@ export default function Header() {
     return (
         <nav className="flex justify-between items-center px-8 py-4 bg-zinc-900 text-white shadow-md">
             <h2 className="m-0 text-red-600 font-bold text-2xl tracking-tight">
-                TrackTube
+                CourseSync
             </h2>
             <button 
                 onClick={handleLogout}
