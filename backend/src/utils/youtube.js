@@ -1,4 +1,5 @@
 import { ApiError } from "./ApiError.js";
+import { parse, toSeconds } from 'iso8601-duration';
 
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 const BASE_URL = "https://www.googleapis.com/youtube/v3";
@@ -27,16 +28,39 @@ const fetchYoutubePlaylistData = async (playlistId) => {
             const videoResponse = await fetch(url);
             const videoData = await videoResponse.json();
 
-            if (videoData.items) {
-                // Convert YouTube's response into our schema
-                const formattedVideos = videoData.items.map((item) => ({
-                    youtubeVideoId: item.snippet.resourceId.videoId,
-                    videoTitle: item.snippet.title,
-                    durationInSeconds: 0, // Duration requires another API request
-                    isWatched: false,
-                    isImportant: false,
-                    savedWatchSpeed: 1.0
-                }));
+            if (videoData.items && videoData.items.length > 0) {
+
+                // Extract all the Video IDs from this page
+                const videoIds = videoData.items
+                    .map((item) => item.snippet.resourceId.videoId)
+                    .join(",");
+
+                // Fetch the durations for these video
+                const detailsResponse = await fetch(
+                    `${BASE_URL}/videos?part=contentDetails&id=${videoIds}&key=${YOUTUBE_API_KEY}`
+                );
+                const detailsData = await detailsResponse.json();
+
+                // Map of VideoID -> Duration for instant lookup
+                const durationMap = {};
+                if (detailsData.items) {
+                    detailsData.items.forEach((video) => {
+                        durationMap[video.id] = toSeconds(parse(video.contentDetails.duration));
+                    });
+                }
+
+                // Adding into our schema
+                const formattedVideos = videoData.items.map((item) => {
+                    const videoId = item.snippet.resourceId.videoId;
+                    return {
+                        youtubeVideoId: videoId,
+                        videoTitle: item.snippet.title,
+                        durationInSeconds: durationMap[videoId] || 0,
+                        isWatched: false,
+                        isImportant: false,
+                        savedWatchSpeed: 1.0
+                    };
+                });
 
                 allVideos.push(...formattedVideos);
             }

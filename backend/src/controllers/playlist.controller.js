@@ -122,4 +122,40 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     );
 });
 
-export { importPlaylist,checkPlaylistStatus,getUserPlaylists,getPlaylistById};
+const toggleVideoWatchedStatus = asyncHandler(async (req, res) => {
+    const { playlistId, videoId } = req.params;
+
+    // Find the playlist that belongs to the logged-in user
+    const playlist = await Playlist.findOne({
+        _id: playlistId,
+        playlistOwnerId: req.user._id
+    });
+
+    if (!playlist) {
+        throw new ApiError(404, "Playlist not found or you don't have permission to edit it");
+    }
+
+    // Find the specific video inside the trackedVideos array
+    const videoIndex = playlist.trackedVideos.findIndex(
+        (video) => video.youtubeVideoId === videoId || video._id.toString() === videoId
+    );
+
+    if (videoIndex === -1) {
+        throw new ApiError(404, "Video not found in this playlist");
+    }
+
+    const currentStatus = playlist.trackedVideos[videoIndex].isWatched;
+    playlist.trackedVideos[videoIndex].isWatched = !currentStatus;
+    
+    await playlist.save();
+
+    return res.status(200).json(
+        new ApiResponse(
+            200, 
+            { isWatched: playlist.trackedVideos[videoIndex].isWatched }, 
+            "Video watched status updated successfully"
+        )
+    );
+});
+
+export { importPlaylist,checkPlaylistStatus,getUserPlaylists,getPlaylistById,toggleVideoWatchedStatus};
