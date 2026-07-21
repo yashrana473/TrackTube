@@ -83,6 +83,29 @@ export default function PlaylistDetail() {
         }
     };
 
+    const handleDeletePlaylist = async () => {
+        // Simple browser confirmation alert before deleting
+        const confirmDelete = window.confirm("Are you sure you want to delete this playlist? This cannot be undone.");
+        if (!confirmDelete) return;
+
+        try {
+            await axios.delete(`http://localhost:8000/api/v1/playlists/${id}`, {
+                withCredentials: true
+            });
+            navigate('/dashboard'); // back to the dashboard on success
+        } catch (error) {
+            console.error("Failed to delete playlist:", error);
+            alert("Failed to delete the playlist. Please try again.");
+        }
+    };
+
+    // Sum of all the seconds in the playlist
+    const totalSeconds = playlist.trackedVideos ? playlist.trackedVideos.reduce((acc, video) => acc + video.durationInSeconds, 0) : 0;
+
+    const totalHours = Math.floor(totalSeconds / 3600);
+    const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
+    const formattedTotalDuration = totalHours > 0 ? `${totalHours}h ${totalMinutes}m` : `${totalMinutes}m`;
+
     return (
         <div className="max-w-7xl mx-auto pb-12">
             <Link to="/dashboard" className="text-red-600 hover:text-red-800 font-bold mb-6 inline-block transition-colors">
@@ -90,13 +113,26 @@ export default function PlaylistDetail() {
             </Link>
 
             {/* Playlist Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-extrabold text-zinc-900 mb-2">{playlist.playlistName}</h1>
-                <div className="flex items-center gap-4 text-gray-600 font-medium">
-                    <p>{playlist.totalPlaylistVideos} Videos Tracked</p>
-                    <span>•</span>
-                    <p className="text-green-600">{watchedCount} Watched</p>
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-extrabold text-zinc-900 mb-2">{playlist.playlistName}</h1>
+                    <div className="flex items-center gap-3 text-gray-600 font-medium flex-wrap">
+                        <p>{playlist.totalPlaylistVideos} Videos Tracked</p>
+                        <span>•</span>
+                        {/* The New Total Duration */}
+                        <p>Total Time: {formattedTotalDuration}</p> 
+                        <span>•</span>
+                        <p className="text-green-600">{watchedCount} Watched</p>
+                    </div>
                 </div>
+
+                {/* Delete Button */}
+                <button 
+                    onClick={handleDeletePlaylist}
+                    className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-md font-bold text-sm hover:bg-red-100 transition-colors shrink-0"
+                >
+                    Delete Playlist
+                </button>
             </div>
 
             {/* Video List */}

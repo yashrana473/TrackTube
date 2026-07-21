@@ -158,4 +158,21 @@ const toggleVideoWatchedStatus = asyncHandler(async (req, res) => {
     );
 });
 
-export { importPlaylist,checkPlaylistStatus,getUserPlaylists,getPlaylistById,toggleVideoWatchedStatus};
+const deletePlaylist = asyncHandler(async (req, res) => {
+    const { playlistId } = req.params;
+
+    const deletedPlaylist = await Playlist.findOneAndDelete({
+        _id: playlistId,
+        playlistOwnerId: req.user._id
+    });
+
+    if (!deletedPlaylist) {
+        throw new ApiError(404, "Playlist not found or you don't have permission to delete it.");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Playlist deleted successfully")
+    );
+});
+
+export { importPlaylist,checkPlaylistStatus,getUserPlaylists,getPlaylistById,toggleVideoWatchedStatus,deletePlaylist};
